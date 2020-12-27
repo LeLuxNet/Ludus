@@ -7,10 +7,12 @@ import { buildSchema } from "type-graphql";
 
 const lang = {
   lc: "de",
-  cc: "de",
+  cc: "DE",
 };
 
 (async () => {
+  console.log("Starting");
+
   await createConnection({
     type: "postgres",
 

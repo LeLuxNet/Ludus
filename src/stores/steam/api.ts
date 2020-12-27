@@ -1,4 +1,4 @@
-import { Currency } from "../../price";
+import { Currency } from "../../entities/price";
 
 interface OwnedGames {
   game_count: number;

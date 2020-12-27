@@ -41,7 +41,9 @@ export async function loadGames(lang: Language) {
 
   // queue.push(...(await ubisoft.uplayPlusGames()));
 
-  queue.push(...(await stadia.allGames()));
+  queue.push(...(await epicGames.allGames()));
+
+  // queue.push(...(await stadia.allGames()));
 
   shuffle(queue);
 
@@ -92,7 +94,10 @@ export async function loadGames(lang: Language) {
     });
 
   if (errors.length > 0) {
-    console.log(errors);
+    console.error(`${errors.length} errors occured`);
+    for (const err of errors) {
+      console.error(err.message);
+    }
   }
 }
 

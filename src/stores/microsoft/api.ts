@@ -1,4 +1,4 @@
-import { Currency } from "../../price";
+import { Currency } from "../../entities/price";
 
 export interface MSProduct {
   LastModifiedDate: string;

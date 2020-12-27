@@ -1,4 +1,4 @@
-import { Price } from "../../price";
+import { Price } from "../../entities/price";
 
 export interface SteamGameData {
   id: number;

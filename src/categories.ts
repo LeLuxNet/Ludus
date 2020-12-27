@@ -29,6 +29,7 @@ export enum Category {
 
   ADDITIONAL_AUDIO,
 
+  EARLY_ACCESS,
   IN_APP_PURCHASES,
 
   STEAM_CLOUD,

@@ -5,9 +5,12 @@ import { Language, Store } from "../../store";
 import { stringify } from "querystring";
 import { Platform } from "../../platforms";
 import { EpicUser } from "./user";
-import { Game } from "../../entities/game";
+import { Game, GameQueue } from "../../entities/game";
 import { GameType } from "../../entities/type";
+import { EpicCatalogOffer, EpicOAuthToken, EpicTag } from "./api";
+import { searchQuery, gameQuery } from "./queries";
 import { Price, Stores } from "../../entities/price";
+import { categoryMap } from "./tags";
 
 axiosCookieJarSupport(axios);
 
@@ -27,7 +30,7 @@ interface RawAssetData {
 }
 
 export interface EpicId {
-  catalogItemId: string;
+  id: string;
   namespace: string;
 }
 
@@ -149,51 +152,41 @@ export class EpicGames extends Store<EpicId> {
     return undefined;
   }
 
-  async platformGames(
-    accessToken: string,
-    platform: Platform,
-    label: string = "Live"
-  ): Promise<Promise<Game>[]> {
-    const res = await axios
-      .get(
-        `https://${launcherHost}/launcher/api/public/assets/${mapPlatform(
-          platform
-        )}`,
-        {
-          params: {
-            label,
-          },
-          headers: getHeader(accessToken),
-        }
-      )
-      .catch(authError);
+  async allGames(): Promise<GameQueue> {
+    // TODO: All pages
 
-    return res.data.map((e: RawAssetData) =>
-      this.getGame(e, { data: accessToken })
+    const res = await axios.post("https://www.epicgames.com/graphql", {
+      query: searchQuery,
+      variables: {
+        locale: this.language.lc,
+        country: this.language.cc,
+        allowCountries: this.language.cc,
+        category:
+          "games/edition/base|bundles/games|editors|software/edition/base", // "games",
+        count: 1000,
+      },
+    });
+
+    return res.data.data.Catalog.searchStore.elements.map((d: any) => () =>
+      this.mapGame(d)
     );
   }
 
-  async pullGame(
-    { namespace, catalogItemId }: EpicId,
-    accessToken: string
-  ): Promise<Game> {
-    const res = await axios
-      .get(
-        `https://${catalogHost}/catalog/api/shared/namespace/${namespace}/bulk/items`,
-        {
-          params: {
-            id: catalogItemId,
-            includeDLCDetails: true,
-            includeMainGameDetails: true,
-            country: this.language.cc,
-            locale: this.language.lc,
-          },
-          headers: getHeader(accessToken),
-        }
-      )
-      .catch(authError);
+  async pullGame(id: EpicId): Promise<Game> {
+    const res = await axios.post("https://www.epicgames.com/graphql", {
+      query: gameQuery,
+      variables: {
+        id: id.id,
+        namespace: id.namespace,
+        locale: this.language.lc,
+        country: this.language.cc,
+      },
+    });
 
-    const data: GameItem = res.data[catalogItemId];
+    return this.mapGame(res.data.data.Catalog.catalogOffer);
+  }
+
+  mapGame(data: EpicCatalogOffer): Game {
     // console.log(data);
 
     var icon: string | undefined;
@@ -201,6 +194,8 @@ export class EpicGames extends Store<EpicId> {
     var cover: string | undefined;
     var background: string | undefined;
     const screenshots: string[] = [];
+
+    const url = `https://www.epicgames.com/store/product/${data.productSlug}`;
 
     data.keyImages.forEach((i) => {
       switch (i.type) {
@@ -210,18 +205,34 @@ export class EpicGames extends Store<EpicId> {
         case "DieselGameBoxLogo":
           logo = i.url;
           break;
+        case "OfferImageTall":
+        case "DieselStoreFrontTall":
         case "DieselGameBoxTall":
+        case "CodeRedemption_340x440":
+        case "TakeoverTall":
           cover = i.url;
           break;
+        case "OfferImageWide":
+        case "DieselStoreFrontWide":
         case "DieselGameBox":
+        case "DieselGameBoxWide":
+        case "TakeoverWide":
           background = i.url;
           break;
         case "Sale": // ?
         case "Screenshot":
           screenshots.push(i.url);
           break;
-        /* default:
-          console.log(i.type); */
+        case "TakeoverLogoSmall":
+        case "TakeoverLogo":
+        case "VaultClosed":
+        case "ComingSoon": // ?
+        case "ESRB":
+          break; // Ignore
+        default:
+          console.log(
+            `[${name}] Unknown image type: '${i.type}' at ${url} (${i.url})`
+          );
       }
     });
 
@@ -229,19 +240,33 @@ export class EpicGames extends Store<EpicId> {
       throw `[${name}] No cover provided`;
     }
 
-    const categories: string[] = data.categories.map((e: any) => e.path);
+    const categories: string[] = data.categories.map((e) => e.path);
     const type = categories.includes("dlc") ? GameType.DLC : GameType.GAME;
 
-    const platform = parsePlatforms(data.customAttributes.SupportedPlatforms);
+    const tags = data.tags.map(mapTag).filter((e) => e !== null);
+
+    const prices: Price[] = [];
+    if (data.price !== null) {
+      const pData = data.price.totalPrice;
+      const price = Price.create({
+        store: Stores.EPIC_GAMES,
+        platform: Platform.WINDOWS, // tmp
+        url,
+        currency: pData.currencyCode,
+        initial: pData.originalPrice,
+        current: pData.discountPrice,
+      });
+      prices.push(price);
+    }
 
     return Game.create({
       name: data.title,
       shortDescription: data.description,
-      longDescription: data.longDescription,
-      developers: [data.developer],
-      publishers: [data.developer],
+      longDescription: data.longDescription || undefined,
+      developers: data.developer === null ? [] : [data.developer],
+      publishers: [data.seller.name],
 
-      releaseDate: new Date(data.releaseInfo[0].dateAdded),
+      releaseDate: new Date(data.releaseDate),
       lastUpdate: new Date(data.lastModifiedDate),
 
       type,
@@ -250,9 +275,9 @@ export class EpicGames extends Store<EpicId> {
       icon,
       logo,
       cover,
+      background,
       screenshots,
-
-      prices: [],
+      prices,
     });
   }
 }
@@ -321,4 +346,15 @@ function parsePlatforms(attribute: { value: string }) {
     res |= platformMap[e];
   });
   return res;
+}
+
+function mapTag(tag: EpicTag) {
+  const category = categoryMap.get(tag.id);
+
+  if (category === undefined) {
+    console.warn(`[${name}] Unknown tag: ${tag.id} (${tag.name})`);
+    return null;
+  }
+
+  return category;
 }
