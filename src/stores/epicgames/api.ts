@@ -158,3 +158,39 @@ interface ReleaseInfo {
 }
 
 type Platform = "Windows" | "Mac" | "Win32";
+
+export interface EpicMediaRef {
+  accountId: string;
+  outputs: MediaOutput[];
+  namespace: string;
+}
+
+type MediaOutput = VideoOutput | AudioOutput | ImageOutput | ManifestOutput;
+
+interface VideoOutput {
+  duration: number;
+  url: string;
+  width: number;
+  height: number;
+  key: "high" | "medium" | "low";
+  contentType: "video/mp4";
+}
+
+interface AudioOutput {
+  duration: number;
+  url: string;
+  key: "audio";
+  contentType: "audio/m4a";
+}
+
+interface ImageOutput {
+  url: string;
+  key: "thumbnail";
+  contentType: "image/png";
+}
+
+interface ManifestOutput {
+  url: string;
+  key: "manifest";
+  contentType: "application/dash+xml";
+}

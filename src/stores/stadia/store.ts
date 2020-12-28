@@ -58,7 +58,7 @@ export class Stadia extends Store<StadiaId> {
     const trailerCard = data[9][2][13].find((e: any) => e.length === 3);
     var trailer: string | undefined;
     if (trailerCard !== undefined) {
-      trailer = trailerCard[2][1];
+      trailer = `https://www.youtube.com/watch?v=${trailerCard[2][1]}`;
     }
 
     const screenshots: string[] = data[9][2][13]

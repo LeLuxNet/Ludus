@@ -7,8 +7,8 @@ import { Platform } from "../../platforms";
 import { EpicUser } from "./user";
 import { Game, GameQueue } from "../../entities/game";
 import { GameType } from "../../entities/type";
-import { EpicCatalogOffer, EpicOAuthToken, EpicTag } from "./api";
-import { searchQuery, gameQuery } from "./queries";
+import { EpicCatalogOffer, EpicMediaRef, EpicOAuthToken, EpicTag } from "./api";
+import { searchQuery, gameQuery, mediaQuery } from "./queries";
 import { Price, Stores } from "../../entities/price";
 import { categoryMap } from "./tags";
 
@@ -153,23 +153,31 @@ export class EpicGames extends Store<EpicId> {
   }
 
   async allGames(): Promise<GameQueue> {
-    // TODO: All pages
+    const count = 1000;
 
-    const res = await axios.post("https://www.epicgames.com/graphql", {
-      query: searchQuery,
-      variables: {
-        locale: this.language.lc,
-        country: this.language.cc,
-        allowCountries: this.language.cc,
-        category:
-          "games/edition/base|bundles/games|editors|software/edition/base", // "games",
-        count: 1000,
-      },
-    });
+    const elements: EpicCatalogOffer[] = [];
+    var start = 0;
+    while (true) {
+      const res = await axios.post("https://www.epicgames.com/graphql", {
+        query: searchQuery,
+        variables: {
+          locale: this.language.lc,
+          country: this.language.cc.toUpperCase(),
+          allowCountries: this.language.cc.toUpperCase(),
+          category: "games", // "games/edition/base|bundles/games|editors|software/edition/base"
+          count,
+        },
+      });
+      const catalog = res.data.data.Catalog.searchStore;
+      elements.push(...catalog.elements);
+      start += count;
 
-    return res.data.data.Catalog.searchStore.elements.map((d: any) => () =>
-      this.mapGame(d)
-    );
+      if (start > catalog.paging.total) {
+        break;
+      }
+    }
+
+    return elements.map((d) => () => Promise.resolve(this.mapGame(d)));
   }
 
   async pullGame(id: EpicId): Promise<Game> {
@@ -195,7 +203,10 @@ export class EpicGames extends Store<EpicId> {
     var background: string | undefined;
     const screenshots: string[] = [];
 
-    const url = `https://www.epicgames.com/store/product/${data.productSlug}`;
+    const url =
+      data.productSlug === null
+        ? undefined
+        : `https://www.epicgames.com/store/product/${data.productSlug}`;
 
     data.keyImages.forEach((i) => {
       switch (i.type) {
@@ -237,7 +248,13 @@ export class EpicGames extends Store<EpicId> {
     });
 
     if (cover === undefined) {
-      throw `[${name}] No cover provided`;
+      if (logo !== undefined) {
+        // TODO: Add background and change aspect ratio
+        cover = icon;
+      } else {
+        console.log(url);
+        throw `[${name}] No cover provided`;
+      }
     }
 
     const categories: string[] = data.categories.map((e) => e.path);
@@ -280,6 +297,36 @@ export class EpicGames extends Store<EpicId> {
       prices,
     });
   }
+}
+
+async function getTrailer(mediaRefId: string) {
+  const res = await axios.post("https://www.epicgames.com/graphql", {
+    query: mediaQuery,
+    variables: {
+      mediaRefId,
+    },
+  });
+
+  const data: EpicMediaRef = res.data.data.Media.getMediaRef;
+
+  var trailer: string | undefined;
+  var thumbnail: string | undefined;
+
+  for (const o of data.outputs) {
+    switch (o.key) {
+      case "high":
+        trailer = o.url;
+        break;
+      case "thumbnail":
+        thumbnail = o.url;
+        break;
+    }
+  }
+
+  return {
+    trailer,
+    thumbnail,
+  };
 }
 
 function authError(err: AxiosError): never {

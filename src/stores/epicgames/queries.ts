@@ -94,3 +94,21 @@ query catalogQuery($namespace: String!, $id: String!, $locale: String, $country:
     }
   }
 }`;
+
+export const mediaQuery = `
+query fetchMediaRef($mediaRefId: String!) {
+  Media {
+    getMediaRef(mediaRefId: $mediaRefId) {
+      accountId
+      outputs {
+        duration
+        url
+        width
+        height
+        key
+        contentType
+      }
+      namespace
+    }
+  }
+}`;

@@ -5,8 +5,8 @@ export enum Platform {
 
   XBOX_ONE = 8,
 
-  PS4 = 16,
-  PS5 = 32 + PS4,
+  PS5 = 32,
+  PS4 = 16 + PS5,
 
   SWITCH = 64,
 

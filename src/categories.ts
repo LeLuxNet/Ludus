@@ -1,6 +1,8 @@
 export enum Category {
   SINGLE_PLAYER,
+
   MULTI_PLAYER,
+  MULTI_PLAYER_LAN,
 
   PVP,
   PVP_LAN,

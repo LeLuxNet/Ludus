@@ -6,8 +6,8 @@ import { SearchResolver } from "./resolvers/search";
 import { buildSchema } from "type-graphql";
 
 const lang = {
-  lc: "de",
-  cc: "DE",
+  lc: "dE",
+  cc: "De",
 };
 
 (async () => {

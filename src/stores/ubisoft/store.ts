@@ -33,7 +33,7 @@ export class UbisoftStore extends Store<string> {
 
     do {
       const res = await axios.get(
-        `https://store.ubi.com/s/${this.lang.cc}_ubisoft/dw/shop/v19_8/product_search`,
+        `https://store.ubi.com/s/${this.lang.cc.toLowerCase()}_ubisoft/dw/shop/v19_8/product_search`,
         {
           params: {
             refine: `cgid=${cgid}`,
@@ -56,7 +56,7 @@ export class UbisoftStore extends Store<string> {
 
   async pullGame(id: string): Promise<Game> {
     const res = await axios.get(
-      `https://store.ubi.com/s/${this.lang.cc}_ubisoft/dw/shop/v19_8/products/(${id})`,
+      `https://store.ubi.com/s/${this.lang.cc.toLowerCase()}_ubisoft/dw/shop/v19_8/products/(${id})`,
       {
         params: {
           expand: "images,variations",
@@ -160,6 +160,8 @@ function mapPlatform(id: string) {
       return Platform.XBOX_ONE;
     case "switch":
       return Platform.SWITCH;
+    // case "pcph":
+    // case "XboxDig":
   }
 
   console.log(`[${name}] Unknown platform: '${id}'`);
