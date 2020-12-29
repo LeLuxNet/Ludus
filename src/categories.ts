@@ -48,4 +48,9 @@ export enum Category {
 
   SOURCE_SDK,
   VALVE_ANTI_CHEAT,
+
+  GOG_CLOUD,
+  GOG_LEADERBOARDS,
+  GOG_ACHIEVEMENTS,
+  GOG_OVERLAY,
 }

@@ -2,6 +2,7 @@ import PromisePool from "@supercharge/promise-pool/dist";
 import { EpicGames } from "./stores/epicgames/store";
 import { MicrosoftStore } from "./stores/microsoft/store";
 import { Stadia } from "./stores/stadia/store";
+import { GOG } from "./stores/gog/store";
 import { Steam } from "./stores/steam/store";
 import { Language } from "./store";
 import { UbisoftStore } from "./stores/ubisoft/store";
@@ -28,6 +29,7 @@ const MAX_CONCURRENT = 500;
 
 export async function loadGames(lang: Language) {
   const steam = new Steam(STEAM_KEY!, lang);
+  const gog = new GOG(lang);
   const microsoft = new MicrosoftStore(lang);
   const ubisoft = new UbisoftStore(lang);
   const epicGames = new EpicGames(lang);
@@ -37,13 +39,15 @@ export async function loadGames(lang: Language) {
 
   // queue.push(...(await steam.allGames()));
 
-  queue.push(...(await microsoft.gamePassGames()));
+  queue.push(...(await gog.allGames()));
 
-  queue.push(...(await ubisoft.uplayPlusGames()));
+  // queue.push(...(await microsoft.gamePassGames()));
 
-  queue.push(...(await epicGames.allGames()));
+  // queue.push(...(await ubisoft.uplayPlusGames()));
 
-  queue.push(...(await stadia.allGames()));
+  // queue.push(...(await epicGames.allGames()));
+
+  // queue.push(...(await stadia.allGames()));
 
   shuffle(queue);
 
@@ -96,7 +100,7 @@ export async function loadGames(lang: Language) {
   if (errors.length > 0) {
     console.error(`${errors.length} errors occured`);
     for (const err of errors) {
-      // console.error(err.message);
+      console.error(err.message);
     }
   }
 }

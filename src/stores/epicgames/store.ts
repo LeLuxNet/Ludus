@@ -11,6 +11,7 @@ import { EpicCatalogOffer, EpicMediaRef, EpicOAuthToken, EpicTag } from "./api";
 import { searchQuery, gameQuery, mediaQuery } from "./queries";
 import { Price, Stores } from "../../entities/price";
 import { categoryMap } from "./tags";
+import { Category } from "../../categories";
 
 axiosCookieJarSupport(axios);
 
@@ -260,7 +261,7 @@ export class EpicGames extends Store<EpicId> {
     const categories: string[] = data.categories.map((e) => e.path);
     const type = categories.includes("dlc") ? GameType.DLC : GameType.GAME;
 
-    const tags = data.tags.map(mapTag).filter((e) => e !== null);
+    const tags = data.tags.map(mapTag).filter((e) => e !== null) as Category[];
 
     const prices: Price[] = [];
     if (data.price !== null) {
@@ -287,7 +288,7 @@ export class EpicGames extends Store<EpicId> {
       lastUpdate: new Date(data.lastModifiedDate),
 
       type,
-      categories: [],
+      categories: tags,
 
       icon,
       logo,
