@@ -4,6 +4,7 @@ import { Store } from "../../store";
 import { Game, GameQueue } from "../../entities/game";
 import { Price, Stores } from "../../entities/price";
 import { GameType } from "../../entities/type";
+import { youTubeTrailer } from "../../entities/trailer";
 
 const name = "Google Stadia";
 
@@ -56,9 +57,9 @@ export class Stadia extends Store<StadiaId> {
     // console.log(data);
 
     const trailerCard = data[9][2][13].find((e: any) => e.length === 3);
-    var trailer: string | undefined;
+    var trailer = {};
     if (trailerCard !== undefined) {
-      trailer = `https://www.youtube.com/watch?v=${trailerCard[2][1]}`;
+      trailer = youTubeTrailer(trailerCard[2][1]);
     }
 
     const screenshots: string[] = data[9][2][13]
@@ -93,7 +94,8 @@ export class Stadia extends Store<StadiaId> {
       cover: toImg(data[9][2][16]),
       background: toImg(data[9][2][9]),
       screenshots,
-      trailer,
+
+      ...trailer,
 
       prices,
     });

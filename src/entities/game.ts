@@ -8,13 +8,15 @@ import {
 import { Category } from "../categories";
 import { Price } from "./price";
 import { GameType } from "./type";
-import { ObjectType, Field, Int } from "type-graphql";
+import { ObjectType, Field, Int, ID } from "type-graphql";
+import { Trailer } from "./trailer";
 
 export type GameQueue = (() => Promise<Game>)[];
 
 @ObjectType()
 @Entity()
 export class Game extends BaseEntity {
+  @Field(() => ID)
   @PrimaryGeneratedColumn()
   id!: number;
 
@@ -26,10 +28,8 @@ export class Game extends BaseEntity {
   @Column()
   shortDescription!: string;
 
-  @Field()
-  @Column({
-    nullable: true,
-  })
+  @Field({ nullable: true })
+  @Column({ nullable: true })
   longDescription?: string;
 
   @Field(() => [String])
@@ -46,28 +46,20 @@ export class Game extends BaseEntity {
   })
   publishers!: string[];
 
-  @Field()
-  @Column({
-    nullable: true,
-  })
+  @Field({ nullable: true })
+  @Column({ nullable: true })
   website?: string;
 
-  @Field()
-  @Column({
-    nullable: true,
-  })
+  @Field({ nullable: true })
+  @Column({ nullable: true })
   legal?: string;
 
-  @Field()
-  @Column({
-    nullable: true,
-  })
+  @Field({ nullable: true })
+  @Column({ nullable: true })
   releaseDate?: Date;
 
-  @Field()
-  @Column({
-    nullable: true,
-  })
+  @Field({ nullable: true })
+  @Column({ nullable: true })
   lastUpdate?: Date;
 
   @Field(() => Int)
@@ -83,26 +75,20 @@ export class Game extends BaseEntity {
   })
   categories!: Category[];
 
-  @Field()
-  @Column({
-    nullable: true,
-  })
+  @Field({ nullable: true })
+  @Column({ nullable: true })
   icon?: string;
 
-  @Field()
-  @Column({
-    nullable: true,
-  })
+  @Field({ nullable: true })
+  @Column({ nullable: true })
   logo?: string;
 
   @Field()
   @Column()
   cover!: string;
 
-  @Field()
-  @Column({
-    nullable: true,
-  })
+  @Field({ nullable: true })
+  @Column({ nullable: true })
   background?: string;
 
   @Field(() => [String])
@@ -112,18 +98,21 @@ export class Game extends BaseEntity {
   })
   screenshots!: string[];
 
-  @Field()
-  @Column({
-    nullable: true,
-  })
+  @Column({ nullable: true })
   trailerThumbnail?: string;
 
-  @Field()
-  @Column({
-    nullable: true,
-  })
+  @Column({ nullable: true })
   trailer?: string;
 
+  @Field(() => Trailer, { name: "trailer", nullable: true })
+  apiTrailer() {
+    if (this.trailerThumbnail === undefined || this.trailer === undefined) {
+      return null;
+    }
+    return new Trailer(this.trailerThumbnail, this.trailer);
+  }
+
+  @Field(() => [Price])
   @OneToMany(() => Price, (price) => price.game, {
     cascade: true,
   })

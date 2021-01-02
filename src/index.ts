@@ -2,7 +2,7 @@ import { ApolloServer } from "apollo-server-express";
 import express from "express";
 import { createConnection } from "typeorm";
 import { loadGames } from "./load";
-import { SearchResolver } from "./resolvers/search";
+import { GameResolver } from "./resolvers/game";
 import { buildSchema } from "type-graphql";
 
 const lang = {
@@ -23,7 +23,7 @@ const lang = {
     database: "ludus",
 
     synchronize: true,
-    // logging: true,
+    logging: true,
     entities: ["dist/entities/*.js"],
   });
 
@@ -32,7 +32,7 @@ const lang = {
   const app = express();
 
   const schema = await buildSchema({
-    resolvers: [SearchResolver],
+    resolvers: [GameResolver],
   });
 
   const apolloServer = new ApolloServer({ schema });

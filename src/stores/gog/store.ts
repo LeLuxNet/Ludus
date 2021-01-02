@@ -5,6 +5,7 @@ import { GameType } from "../../entities/type";
 import { GOGPage, GOGProduct, GOGSearchProduct, GOGFeature } from "./api";
 import { categoryMap } from "./features";
 import { Category } from "../../categories";
+import { youTubeTrailer } from "../../entities/trailer";
 
 const name = "GOG";
 
@@ -54,12 +55,12 @@ export class GOG extends Store<number> {
       e._links.self.href.replace("{formatter}", "1600")
     );
 
-    var trailer: string | undefined;
+    var trailer = {};
     if (
       data._embedded.videos !== undefined &&
       data._embedded.videos.length > 0
     ) {
-      trailer = `https://www.youtube.com/watch?v=${data._embedded.videos[0].videoId}`;
+      trailer = youTubeTrailer(data._embedded.videos[0].videoId);
     }
 
     const categories = data._embedded.features
@@ -81,7 +82,8 @@ export class GOG extends Store<number> {
       cover: data._links.boxArtImage.href,
       // background: data._links.galaxyBackgroundImage.href,
       screenshots,
-      trailer,
+
+      ...trailer,
 
       prices: [],
     });

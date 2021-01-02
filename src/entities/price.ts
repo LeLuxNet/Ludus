@@ -1,3 +1,4 @@
+import { Field, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   Column,
@@ -13,12 +14,14 @@ export enum Currency {
 
 export enum Stores {
   STEAM,
+  GOG,
   UBISOFT,
   EPIC_GAMES,
   MICROSOFT,
   STADIA,
 }
 
+@ObjectType()
 @Entity()
 export class Price extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -34,18 +37,22 @@ export class Price extends BaseEntity {
   })
   platform!: number;
 
+  @Field()
   @Column()
   url!: string;
 
+  @Field({ nullable: true })
   @Column({
     enum: Currency,
     nullable: true,
   })
   currency?: Currency;
 
+  @Field()
   @Column()
   initial!: number;
 
+  @Field({ nullable: true })
   @Column()
   current?: number;
 

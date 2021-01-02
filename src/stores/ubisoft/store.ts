@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Category } from "../../categories";
 import { Game, GameQueue } from "../../entities/game";
+import { youTubeTrailer } from "../../entities/trailer";
 import { GameType } from "../../entities/type";
 import { Platform } from "../../platforms";
 import { Language, Store } from "../../store";
@@ -91,13 +92,12 @@ export class UbisoftStore extends Store<string> {
       throw `[${name}] No cover provided`;
     }
 
-    var trailer: string | undefined;
+    var trailer = {};
     if (
       data.c_productYoutubeIds !== undefined &&
       data.c_productYoutubeIds.length === 0
     ) {
-      trailer =
-        "https://www.youtube.com/watch?v=" + data.c_productYoutubeIds[0];
+      trailer = youTubeTrailer(data.c_productYoutubeIds[0]);
     }
 
     var platform = 0;
@@ -141,7 +141,8 @@ export class UbisoftStore extends Store<string> {
       cover,
       background: hero,
       screenshots,
-      trailer,
+
+      ...trailer,
 
       prices: [],
     });

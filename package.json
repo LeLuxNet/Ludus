@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodejs dist/index.js",
     "build": "tsc",
-    "dev": "tsc && nodejs dist/index.js"
+    "dev": "npm run build && npm run start"
   },
   "dependencies": {
     "@supercharge/promise-pool": "^1.6.0",

@@ -39,7 +39,7 @@ export async function loadGames(lang: Language) {
 
   // queue.push(...(await steam.allGames()));
 
-  queue.push(...(await gog.allGames()));
+  // queue.push(...(await gog.allGames()));
 
   // queue.push(...(await microsoft.gamePassGames()));
 
@@ -47,7 +47,7 @@ export async function loadGames(lang: Language) {
 
   // queue.push(...(await epicGames.allGames()));
 
-  // queue.push(...(await stadia.allGames()));
+  queue.push(...(await stadia.allGames()));
 
   shuffle(queue);
 
