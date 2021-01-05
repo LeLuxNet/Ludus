@@ -93,13 +93,22 @@ export class Discord extends Store<string> {
 
     await Promise.all(promises);
 
-    return stores.map((e) => () => this.getGame(e[0], { data: e[1] }));
+    return stores.map((e) => () => this.getGame(e[0], e[1]));
   }
 
-  async pullGame(channelId: string, guildId: string): Promise<Game> {
+  async getGame(channelId: string, guildId: string) {
     const res = await this.baseAxios
       .get(`channels/${channelId}/store-listing`)
-      .catch(rateLimitRetry);
+      .catch(rateLimitRetry)
+      .catch((err: AxiosError) => {
+        if (err.response?.status === 403) {
+          return null;
+        }
+        throw err;
+      });
+
+    // Maybe thers a more beautiful way to return directly from the catch block
+    if (res === null) return null;
 
     const data: DiscordStoreListing = res.data;
 
@@ -204,11 +213,6 @@ function mapFeature(id: number, n: string) {
 }
 
 function rateLimitRetry(err: AxiosError) {
-  if (err.response?.status === 403) {
-    console.log(err.config.url);
-    throw "";
-  }
-
   if (err.response === undefined || err.response.status !== 429) {
     throw err;
   }

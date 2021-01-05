@@ -11,7 +11,7 @@ import { GameType } from "./type";
 import { ObjectType, Field, Int, ID } from "type-graphql";
 import { Trailer } from "./trailer";
 
-export type GameQueue = (() => Promise<Game>)[];
+export type GameQueue = (() => Promise<Game | null>)[];
 
 @ObjectType()
 @Entity()

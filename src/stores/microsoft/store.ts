@@ -44,7 +44,7 @@ export class MicrosoftStore extends Store<string> {
     return res.data.slice(1).map((e: any) => () => this.getGame(e.id));
   }
 
-  async pullGame(id: string) {
+  async getGame(id: string) {
     const res = await axios.get(
       "https://displaycatalog.mp.microsoft.com/v7.0/products",
       {

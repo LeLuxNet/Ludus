@@ -26,9 +26,7 @@ export class GOG extends Store<number> {
       );
 
       const data: GOGPage = res.data;
-      queue.push(
-        ...data.products.map((e) => () => this.getGame(e.id, { data: e }))
-      );
+      queue.push(...data.products.map((e) => () => this.getGame(e.id, e)));
 
       if (page++ >= data.totalPages) {
         break;
@@ -38,7 +36,7 @@ export class GOG extends Store<number> {
     return queue;
   }
 
-  async pullGame(id: number, sData: GOGSearchProduct) {
+  async getGame(id: number, sData: GOGSearchProduct) {
     const res = await axios.get(
       `https://api.gog.com/v2/games/${id}?locale=${this.lang.lc}-${this.lang.cc}`
     );

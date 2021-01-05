@@ -55,7 +55,7 @@ export class UbisoftStore extends Store<string> {
     return ids.map((e) => () => this.getGame(e));
   }
 
-  async pullGame(id: string): Promise<Game> {
+  async getGame(id: string): Promise<Game> {
     const res = await axios.get(
       `https://store.ubi.com/s/${this.lang.cc.toLowerCase()}_ubisoft/dw/shop/v19_8/products/(${id})`,
       {

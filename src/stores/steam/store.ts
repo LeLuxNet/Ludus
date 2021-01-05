@@ -84,10 +84,10 @@ export class Steam extends Store<number> {
 
     const data: SteamAppListEntry[] = res.data.response.games;
 
-    return data.map((e) => this.getGame(e.appid, { data: e.img_icon_url }));
+    return data.map((e) => this.getGame(e.appid, e.img_icon_url));
   }
 
-  async pullGame(appId: number, iconHash?: string) {
+  async getGame(appId: number, iconHash?: string) {
     const res = await this.storeAxios.get("appdetails", {
       params: {
         appids: appId,

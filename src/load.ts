@@ -70,6 +70,7 @@ export async function loadGames(lang: Language) {
     .for(queue)
     .process(async (call) => {
       const game = await call();
+      if (game === null) return;
 
       await lock.acquire(game.name, async () => {
         const target = await Game.findOne({

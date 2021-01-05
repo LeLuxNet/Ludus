@@ -181,7 +181,7 @@ export class EpicGames extends Store<EpicId> {
     return elements.map((d) => () => Promise.resolve(this.mapGame(d)));
   }
 
-  async pullGame(id: EpicId): Promise<Game> {
+  async getGame(id: EpicId): Promise<Game> {
     const res = await axios.post("https://www.epicgames.com/graphql", {
       query: gameQuery,
       variables: {

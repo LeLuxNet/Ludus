@@ -42,12 +42,12 @@ export class Stadia extends Store<StadiaId> {
           id: e[1],
           sku: e[0],
         },
-        { data: e }
+        e
       )
     );
   }
 
-  async pullGame(id: StadiaId, data?: any) {
+  async getGame(id: StadiaId, data?: any) {
     if (data === undefined) {
       data = await this.load(
         `https://stadia.google.com/store/details/${id.id}/sku/${id.sku}`
