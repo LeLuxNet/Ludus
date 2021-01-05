@@ -18,6 +18,7 @@ export enum Stores {
   UBISOFT,
   EPIC_GAMES,
   MICROSOFT,
+  DISCORD,
   STADIA,
 }
 
@@ -40,6 +41,10 @@ export class Price extends BaseEntity {
   @Field()
   @Column()
   url!: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  launchUrl?: string;
 
   @Field({ nullable: true })
   @Column({

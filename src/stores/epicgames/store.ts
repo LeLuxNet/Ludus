@@ -270,6 +270,7 @@ export class EpicGames extends Store<EpicId> {
         store: Stores.EPIC_GAMES,
         platform: Platform.WINDOWS, // tmp
         url,
+        launchUrl: `com.epicgames.launcher://apps/Sugar?action=launch&silent=true`,
         currency: pData.currencyCode,
         initial: pData.originalPrice,
         current: pData.discountPrice,

@@ -117,6 +117,7 @@ export class Steam extends Store<number> {
       (data.platforms.linux ? Platform.MAC : 0);
 
     const url = `https://store.steampowered.com/app/${data.steam_appid}`;
+    const launchUrl = `steam://rungameid/${data.steam_appid}`;
 
     var price: Price;
     if (data.price_overview === undefined) {
@@ -124,6 +125,7 @@ export class Steam extends Store<number> {
         store: Stores.STEAM,
         platform,
         url,
+        launchUrl,
         initial: 0,
         current: 0,
       });
@@ -132,6 +134,7 @@ export class Steam extends Store<number> {
         store: Stores.STEAM,
         platform,
         url,
+        launchUrl,
         currency: data.price_overview.currency,
         initial: data.price_overview.initial,
         current: data.price_overview.final,

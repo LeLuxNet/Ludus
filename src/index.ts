@@ -23,7 +23,7 @@ const lang = {
     database: "ludus",
 
     synchronize: true,
-    logging: true,
+    // logging: true,
     entities: ["dist/entities/*.js"],
   });
 

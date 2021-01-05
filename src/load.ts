@@ -2,6 +2,7 @@ import PromisePool from "@supercharge/promise-pool/dist";
 import { EpicGames } from "./stores/epicgames/store";
 import { MicrosoftStore } from "./stores/microsoft/store";
 import { Stadia } from "./stores/stadia/store";
+import { Discord } from "./stores/discord/store";
 import { GOG } from "./stores/gog/store";
 import { Steam } from "./stores/steam/store";
 import { Language } from "./store";
@@ -12,7 +13,7 @@ import AsyncLock from "async-lock";
 const STEAM_KEY = process.env.STEAM_KEY;
 if (STEAM_KEY === undefined) {
   console.error(
-    "No 'STEAM_KEY' env variable. Get a Steam api key from https://steamcommunity.com/dev/apikey"
+    "No 'STEAM_KEY' env variable. Get a Steam api key from https://steamcommunity.com/dev/apikey."
   );
   process.exit(1);
 }
@@ -25,6 +26,13 @@ if ((SID && HSID && SSID) === undefined) {
   process.exit(1);
 }
 
+const { DISCORD_TOKEN } = process.env;
+if (DISCORD_TOKEN === undefined) {
+  console.error(
+    "No 'DISCORD_TOKEN' env variable. This has to be a Discord user token. A bot token does not work here."
+  );
+}
+
 const MAX_CONCURRENT = 500;
 
 export async function loadGames(lang: Language) {
@@ -33,6 +41,7 @@ export async function loadGames(lang: Language) {
   const microsoft = new MicrosoftStore(lang);
   const ubisoft = new UbisoftStore(lang);
   const epicGames = new EpicGames(lang);
+  const discord = new Discord(DISCORD_TOKEN!);
   const stadia = new Stadia(SID!, HSID!, SSID!);
 
   const queue: GameQueue = [];
@@ -47,7 +56,9 @@ export async function loadGames(lang: Language) {
 
   // queue.push(...(await epicGames.allGames()));
 
-  queue.push(...(await stadia.allGames()));
+  queue.push(...(await discord.allGames()));
+
+  // queue.push(...(await stadia.allGames()));
 
   shuffle(queue);
 

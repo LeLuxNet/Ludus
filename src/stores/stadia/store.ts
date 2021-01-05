@@ -67,14 +67,15 @@ export class Stadia extends Store<StadiaId> {
       .map((e: any) => toImg(e[1]));
 
     const url = `https://stadia.google.com/store/details/${data[1]}/sku/${data[0]}`;
+    const launchUrl = `https://stadia.google.com/player/${data[1]}`;
 
     var prices: Price[] = [];
     if (data[15].length >= 1) {
-      prices.push(toPrice(url, data[15][0][0]));
+      prices.push(toPrice(url, launchUrl, data[15][0][0]));
     }
 
     if (data[15].length !== 0 && data[15][0].length >= 3) {
-      prices.push(toPrice(url, data[15][0][2]));
+      prices.push(toPrice(url, launchUrl, data[15][0][2]));
     }
 
     return Game.create({
@@ -124,12 +125,13 @@ function toImg(img: any): string {
   return img[4][0][1][1];
 }
 
-function toPrice(url: string, offer: any): Price {
+function toPrice(url: string, launchUrl: string, offer: any): Price {
   if (offer === null) {
     return Price.create({
       store: Stores.STADIA,
       platform: Platform.STADIA,
       url,
+      launchUrl,
       initial: 0,
       current: 0,
     });
@@ -143,6 +145,7 @@ function toPrice(url: string, offer: any): Price {
     store: Stores.STADIA,
     platform: Platform.STADIA,
     url,
+    launchUrl,
     currency: offer[4],
     initial,
     current: values.length === 2 ? initial : values[2][0] / 10000,
