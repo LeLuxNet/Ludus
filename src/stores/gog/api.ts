@@ -116,7 +116,7 @@ interface GOGLinks {
 }
 
 interface GOGLink {
-  href: string;
+  href?: string;
   templated?: boolean;
   formatters?: string[];
 }
@@ -258,4 +258,51 @@ interface GOGEdition {
     self: GOGLink;
     prices: GOGLink;
   };
+}
+
+export interface GOGProduct {
+  id: number;
+  title: string;
+  purchase_link: string;
+  slug?: string;
+
+  content_system_compatibility: {
+    windows: boolean;
+    osx: boolean;
+    linux: boolean;
+  };
+
+  languages: {
+    [key: string]: string;
+  };
+
+  links: {
+    purchase_link: string;
+    product_card: string;
+    support: string;
+    forum: string;
+  };
+
+  in_development: {
+    active: boolean;
+    until: null;
+  };
+  is_secret: boolean;
+  is_installable: boolean;
+  game_type: "game";
+  is_pre_order: boolean;
+
+  release_date: string;
+
+  images: {
+    background: string;
+    logo: string;
+    logo2x: string;
+    sidebarIcon: string | null;
+    sidebarIcon2x: string | null;
+    menuNotificationAv: string | null;
+    menuNotificationAv2: string | null;
+  };
+
+  // dlcs
 }

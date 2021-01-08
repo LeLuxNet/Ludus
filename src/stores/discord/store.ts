@@ -68,11 +68,12 @@ export class Discord extends Store<string> {
                 );
 
                 if (
-                  everyone !== undefined &&
+                  everyone === undefined ||
                   !(parseInt(everyone.deny) & 0x400)
                 ) {
                   stores.push([store.id, store.guild_id]);
-                  /*console.log(
+
+                  /* console.log(
                     store.guild_id,
                     store.id,
                     store.name,
@@ -108,7 +109,10 @@ export class Discord extends Store<string> {
       });
 
     // Maybe thers a more beautiful way to return directly from the catch block
-    if (res === null) return null;
+    if (res === null) {
+      console.log(1);
+      return null;
+    }
 
     const data: DiscordStoreListing = res.data;
 

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { Store, Language } from "../../store";
 import { Game, GameQueue } from "../../entities/game";
 import { GameType } from "../../entities/type";
@@ -37,54 +37,58 @@ export class GOG extends Store<number> {
   }
 
   async getGame(id: number, sData: GOGSearchProduct) {
-    const res = await axios.get(
-      `https://api.gog.com/v2/games/${id}?locale=${this.lang.lc}-${this.lang.cc}`
-    );
+    if (sData.isMovie) {
+      return null;
+    } else {
+      const res = await axios.get(
+        `https://api.gog.com/v2/games/${id}?locale=${this.lang.lc}-${this.lang.cc}`
+      );
 
-    const data: GOGProduct = res.data;
+      const data: GOGProduct = res.data;
 
-    const type = {
-      GAME: GameType.GAME,
-      DLC: GameType.DLC,
-      PACK: GameType.DLC,
-    }[data._embedded.productType];
+      const type = {
+        GAME: GameType.GAME,
+        DLC: GameType.DLC,
+        PACK: GameType.DLC,
+      }[data._embedded.productType];
 
-    const screenshots = data._embedded.screenshots.map((e) =>
-      e._links.self.href.replace("{formatter}", "1600")
-    );
+      const screenshots = data._embedded.screenshots.map((e) =>
+        e._links.self.href!.replace("{formatter}", "1600")
+      );
 
-    var trailer = {};
-    if (
-      data._embedded.videos !== undefined &&
-      data._embedded.videos.length > 0
-    ) {
-      trailer = youTubeTrailer(data._embedded.videos[0].videoId);
+      var trailer = {};
+      if (
+        data._embedded.videos !== undefined &&
+        data._embedded.videos.length > 0
+      ) {
+        trailer = youTubeTrailer(data._embedded.videos[0].videoId);
+      }
+
+      const categories = data._embedded.features
+        .map(mapFeature)
+        .filter((e) => e !== null) as Category[];
+
+      return Game.create({
+        name: sData.title,
+        shortDescription: data.description,
+        type,
+        legal: data.copyrights,
+        developers: data._embedded.developers.map((e) => e.name),
+        publishers: [data._embedded.publisher.name],
+
+        categories,
+
+        // icon: data._links.iconSquare.href,
+        // logo: data._links.logo.href,
+        cover: data._links.boxArtImage.href,
+        // background: data._links.galaxyBackgroundImage.href,
+        screenshots,
+
+        ...trailer,
+
+        prices: [],
+      });
     }
-
-    const categories = data._embedded.features
-      .map(mapFeature)
-      .filter((e) => e !== null) as Category[];
-
-    return Game.create({
-      name: sData.title,
-      shortDescription: data.description,
-      type,
-      legal: data.copyrights,
-      developers: data._embedded.developers.map((e) => e.name),
-      publishers: [data._embedded.publisher.name],
-
-      categories,
-
-      // icon: data._links.iconSquare.href,
-      // logo: data._links.logo.href,
-      cover: data._links.boxArtImage.href,
-      // background: data._links.galaxyBackgroundImage.href,
-      screenshots,
-
-      ...trailer,
-
-      prices: [],
-    });
   }
 }
 

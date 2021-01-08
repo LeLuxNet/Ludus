@@ -112,7 +112,7 @@ export class Game extends BaseEntity {
     return new Trailer(this.trailerThumbnail, this.trailer);
   }
 
-  @Field(() => [Price])
+  // @Field(() => [Price])
   @OneToMany(() => Price, (price) => price.game, {
     cascade: true,
   })
